@@ -79,8 +79,11 @@ enum ENUM_POSITION
  CURRENT_PRICE =  0   // Current Price
 };
 
+input group "PERIOD MODE"
 input ENUM_TYPE_PERIOD  Period_Type  =  PREVIOUS;           // Represents the type period
 input ENUM_TIMEFRAMES   Fibo_Bar     =  PERIOD_D1;          // Range period
+
+input group "LEVELS"
 input ENUM_POSITION     Fibo_Pos     =  RIGHT;              // Line position
 input color             fibo_color0  =  clrLimeGreen;       // Main color
 input color             fibo_color1  =  clrSkyBlue;         // Upper color
