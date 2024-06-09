@@ -8,6 +8,7 @@ This script calculates and displays these levels on price charts, making it easi
 - [Installation](#installation)
 - [Usage](#usage)
 - [Inputs](#inputs)
+- [Customization](#customization)
 - [Script Code](#script-code)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
@@ -23,13 +24,13 @@ This script calculates and displays these levels on price charts, making it easi
 
 ## Installation
 
-1. Download the Script: Download the Fibo.mq5 file from this repository.
+1. Download the Script: Download the Fibo_Bar.mq5 file from this repository.
 2. Open MetaTrader 5
    - Launch MetaTrader 5.
    - Go to `File` -> `Open Data Folder`.
 3. Place the Script
    - Navigate to `MQL5` -> `Indicators`.
-   - Copy the `Fibo.mq5` file into the Experts folder.
+   - Copy the `Fibo_Bar.mq5` file into the Experts folder.
 4. Refresh MetaTrader 5
    - Restart MetaTrader 5 or right-click in the Navigator window and select Refresh.
 
@@ -48,6 +49,21 @@ This script calculates and displays these levels on price charts, making it easi
 - **Colors:** Colors for different Fibonacci levels.
 - **Line Styles:** Styles for the Fibonacci lines.
 - **Line Widths:** Widths for the Fibonacci lines.
+
+## Customization
+
+You can customize the Fibonacci levels by modifying the following arrays in the script
+
+```mql5
+double fibo_main[]  = {0,23.6,38.2,50,55.9,61.8,66.7,78.6,100};
+double fibo_upper[] = {123.6,138.2,150,161.8,178.6,200,261.8,361.8,423.6};
+double fibo_lower[] = {-23.6,-38.2,-50,-61.8,-78.6,-100,-161.8,-261.8,-323.6};
+```
+- `fibo_main[]` Represents the main Fibonacci levels.
+- `fibo_upper[]` Represents the upper Fibonacci levels.
+- `fibo_lower[]` Represents the lower Fibonacci levels.
+
+The values in these arrays determine the specific Fibonacci levels that will be displayed on the chart. Users can adjust these values according to their preference to customize the appearance of the Fibonacci levels on the chart.
 
 ## Script Code
 Below is the MQL5 code used to create the "Fibo_Bar" levels
@@ -160,14 +176,18 @@ void BuildLevels()
    double   Minimum=iLow(NULL,Fibo_Bar,Period_Type);
    datetime time1=iTime(NULL,Fibo_Bar,Period_Type);
    datetime time2=TimeCurrent();
-   int      Start_Bar=iBarShift(NULL,_Period,iTime(NULL, Fibo_Bar,Period_Type));
-   int      End_Bar,High_Index,Low_Index;
+   int      Start_Bar=0,End_Bar,High_Index,Low_Index;
    //+---------------------------------------------------------------+
+   //--- Current Period
    if(Period_Type==0)
      {
-      Start_Bar=0;
       Maximum=fmax(Maximum,iHigh(NULL,Fibo_Bar,Period_Type));
       Minimum=fmin(Minimum,iLow(NULL,Fibo_Bar,Period_Type));
+     }
+   //--- Previous Period
+   else if(Period_Type==1)
+     {
+      Start_Bar=iBarShift(NULL,_Period,iTime(NULL,Fibo_Bar,0));
      }
    //+---------------------------------------------------------------+
    End_Bar=iBarShift(NULL,_Period,iTime(NULL,Fibo_Bar,Period_Type))-Start_Bar;
@@ -180,7 +200,7 @@ void BuildLevels()
      }
    MakeFibo(fibo_main);
    SetFibo(Label_prefix+"Main",time1,Maximum,time2,Minimum,fibo_color0,fibo_width);
-   if(Period_Type==1)
+   if(Period_Type!=0)
      {
       MakeFibo(fibo_upper);
       SetFibo(Label_prefix+"Upper",time1,Maximum,time2,Minimum,fibo_color1,fibo_width);
@@ -244,9 +264,22 @@ void SetHighLow(const string     name,
                 double           high,
                 double            low)
   {
-   int     maxArr=ArraySize(FIBO_levels)-1;
-   string  high_text="High";
-   string  low_text="Low";
+   int maxArr=ArraySize(FIBO_levels)-1;
+   string high_text,low_text;
+   //+---------------------------------------------------------------+
+   //--- Current Period
+   if(Period_Type==0)
+     {
+      high_text = "High";
+      low_text  = "Low";
+     }
+   //--- Previous Period
+   else if(Period_Type==1)
+     {
+      high_text = "Last High";
+      low_text  = "Last Low";
+     }
+   //+---------------------------------------------------------------+
    if(high>low)
      {
       Swap(high_text,low_text);
@@ -283,7 +316,14 @@ void Swap(T   &value1,
 
 ## Contributing
 
-Contributions are welcome! If you have any improvements, bug fixes, or new features to suggest, please follow these steps
+1. Fork the repository.
+2. Create a new branch for your feature or fix.
+3. Commit your changes with descriptive commit messages.
+4. Push your branch to your forked repository.
+4. Open a pull request to the main repository's main branch.
+5. Please ensure your code follows the existing code style and includes comments where necessary.
+
+Please ensure your code follows the existing code style and includes comments where necessary.
 
 ## Acknowledgments
 
